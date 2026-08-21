@@ -1,13 +1,19 @@
 from app.db.database import Base, engine
 from fastapi import FastAPI, status, Request
-from schemas.response import ResponseSchema
+from app.schemas.response import ResponseSchema
 from app.core.exceptions import register_exception_handlers
+from app.routers.auth import auth_router
+from app.models.event import Event
+from app.models.event_staff import EventStaff
+from app.models.event_task import EventTask
+from app.models.user import User
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Event Management API")
 
 register_exception_handlers(app)
+app.include_router(auth_router)
 
 @app.get("/health", response_model=ResponseSchema, tags=["Health"])
 def health_check(request: Request):

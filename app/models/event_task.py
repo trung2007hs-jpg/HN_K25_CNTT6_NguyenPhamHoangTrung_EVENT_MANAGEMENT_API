@@ -6,7 +6,6 @@ from sqlalchemy.sql import func
 
 class EventTask(Base):
     __tablename__ = 'event_tasks'
-
     id = Column(Integer, primary_key=True, autoincrement=True)
     event_id = Column(Integer, ForeignKey('events.id'), nullable=False)
     title = Column(String(255), nullable=False)
