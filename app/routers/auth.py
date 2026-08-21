@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status, Request, Form
 from app.db.database import get_db
 from sqlalchemy.orm import Session
 from app.schemas.auth import RegisterUser, LoginUser
@@ -17,8 +17,14 @@ def register_user(request: Request, new_user: RegisterUser, db: Session = Depend
         path=request.url.path
     )
     
-@auth_router.post("/login", status_code=status.HTTP_200_OK, response_model=BaseResponseSchema)
-def login_user(request: Request, credentials: LoginUser, db: Session = Depends(get_db)):
+@auth_router.post("/login", response_model=BaseResponseSchema)
+def login_user(
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    credentials = LoginUser(email=email, password=password)
     data = login_user_service(credentials, db)
     return BaseResponseSchema(
         status_code=status.HTTP_200_OK,

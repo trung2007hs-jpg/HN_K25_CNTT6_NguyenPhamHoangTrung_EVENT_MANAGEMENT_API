@@ -40,4 +40,7 @@ def login_user_service(credentials: LoginUser, db: Session):
         )
 
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer"
+    }
