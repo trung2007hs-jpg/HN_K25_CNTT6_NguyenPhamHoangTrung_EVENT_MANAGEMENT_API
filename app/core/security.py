@@ -7,4 +7,4 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hash_password: str) -> str:
     return bcrypt.checkpw(password.encode(), hash_password.encode())
 
-def create
+def create_access_token()
