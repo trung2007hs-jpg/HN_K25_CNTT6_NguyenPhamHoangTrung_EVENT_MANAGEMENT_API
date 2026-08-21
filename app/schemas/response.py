@@ -1,4 +1,3 @@
-# app/schemas/response.py
 from datetime import datetime
 from typing import Any, Generic, Optional, TypeVar
 from pydantic import BaseModel, Field
@@ -20,3 +19,10 @@ class ResponseSchema(BaseResponseSchema[DataT], Generic[DataT]):
 class ErrorResponseSchema(BaseResponseSchema[None]):
     status_code: int = 400
     message: str = "Error"
+    
+class TokenData(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenResponse(BaseResponseSchema[TokenData]):
+    pass

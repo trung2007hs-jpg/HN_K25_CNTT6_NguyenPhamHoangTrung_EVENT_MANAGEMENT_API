@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, status, Request, Form
+from datetime import datetime
+from fastapi import APIRouter, Depends, status, Request
+from fastapi.security import OAuth2PasswordRequestForm
 from app.db.database import get_db
 from sqlalchemy.orm import Session
 from app.schemas.auth import RegisterUser, LoginUser
 from app.services.auth import register_user_service, login_user_service
-from app.schemas.response import BaseResponseSchema
+from app.schemas.response import BaseResponseSchema, TokenData
 
 auth_router = APIRouter(prefix='/auth', tags=['Auth'])
 
@@ -17,18 +19,17 @@ def register_user(request: Request, new_user: RegisterUser, db: Session = Depend
         path=request.url.path
     )
     
-@auth_router.post("/login", response_model=BaseResponseSchema)
+@auth_router.post("/login", response_model=TokenData)
 def login_user(
-    request: Request,
-    email: str = Form(...),
-    password: str = Form(...),
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    credentials = LoginUser(email=email, password=password)
+    credentials = LoginUser(
+        email=form_data.username,
+        password=form_data.password,
+    )
     data = login_user_service(credentials, db)
-    return BaseResponseSchema(
-        status_code=status.HTTP_200_OK,
-        message="Đăng nhập thành công",
-        data=data,
-        path=request.url.path,
+    return TokenData(
+        access_token=data["access_token"],
+        token_type=data["token_type"],
     )

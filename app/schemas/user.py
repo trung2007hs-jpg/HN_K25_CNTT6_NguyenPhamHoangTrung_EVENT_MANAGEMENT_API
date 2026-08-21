@@ -12,7 +12,6 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = None
 
-# Schema trả về thông tin User (Profile / User List)
 class UserResponse(UserBase):
     id: int
     role: str
