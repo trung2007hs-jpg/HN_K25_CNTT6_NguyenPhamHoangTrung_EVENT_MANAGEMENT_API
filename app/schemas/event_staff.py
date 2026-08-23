@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.schemas.user import UserResponse
 
 class EventStaffBase(BaseModel):
-    role: Optional[str] = "STAFF"
+    role: str 
 
 # Schema cho request thêm nhân sự vào sự kiện
 class EventStaffCreate(EventStaffBase):
@@ -21,5 +21,4 @@ class EventStaffResponse(EventStaffBase):
     joined_at: datetime
     user: Optional[UserResponse] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

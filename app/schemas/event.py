@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel
-from app.schemas.user import UserResponse
-from schemas.event_staff import EventStaffResponse
-from schemas.event_task import EventTaskResponse
+from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.user import UserBase
+from app.schemas.event_staff import EventStaffResponse
+from app.schemas.event_task import EventTaskResponse
 
 class EventBase(BaseModel):
     name: str
@@ -21,14 +21,12 @@ class EventUpdate(BaseModel):
 # Schema trả về Event cơ bản
 class EventResponse(EventBase):
     id: int
-    owner_id: int
     created_at: datetime
-    owner: Optional[UserResponse] = None
+    owner: Optional[UserBase] = Field(default=None, validation_alias="user")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Schema trả về Event chi tiết (kèm danh sách Staff và Tasks)
 class EventDetailResponse(EventResponse):
-    staffs: List[EventStaffResponse] = []
-    tasks: List[EventTaskResponse] = []
+    staffs: List[EventStaffResponse] = Field(default_factory=list)
+    tasks: List[EventTaskResponse] = Field(default_factory=list)

@@ -1,25 +1,37 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+
+from pydantic import BaseModel, ConfigDict
+
 from app.schemas.user import UserResponse
 
-class EventStaffBase(BaseModel):
-    role: Optional[str] = "STAFF"
 
-# Schema cho request thêm nhân sự vào sự kiện
-class EventStaffCreate(EventStaffBase):
-    user_id: int
+class EventTaskBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    assignee_id: Optional[int] = None
+    status: str = "TODO"
+    priority: str = "MEDIUM"
+    due_date: Optional[datetime] = None
 
-# Schema cho request cập nhật vai trò nhân sự
-class EventStaffUpdate(BaseModel):
-    role: str
 
-# Schema trả về thông tin nhân sự kèm chi tiết User
-class EventStaffResponse(EventStaffBase):
+class EventTaskCreate(EventTaskBase):
+    pass
+
+
+class EventTaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    assignee_id: Optional[int] = None
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    due_date: Optional[datetime] = None
+
+
+class EventTaskResponse(EventTaskBase):
+    id: int
     event_id: int
-    user_id: int
-    joined_at: datetime
-    user: Optional[UserResponse] = None
+    created_at: datetime
+    assignee: Optional[UserResponse] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -19,10 +19,7 @@ def register_user_service(user: RegisterUser, db: Session):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {
-        'id': new_user.email,
-        'full_name': new_user.full_name
-    }
+    return new_user
     
 def login_user_service(credentials: LoginUser, db: Session):
     user = db.query(User).filter(User.email == credentials.email).first()
