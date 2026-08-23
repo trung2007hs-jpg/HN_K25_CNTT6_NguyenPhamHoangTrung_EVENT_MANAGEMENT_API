@@ -14,7 +14,7 @@ def register_user_service(user: RegisterUser, db: Session):
     new_user = User(
         email=user.email,
         password_hash=hash_password(user.password),
-        full_name=user.full_name
+        full_name=user.full_name.lower().title()
     )
     db.add(new_user)
     db.commit()

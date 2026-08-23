@@ -20,3 +20,9 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True
+        
+class EventInUser(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    created_at: datetime

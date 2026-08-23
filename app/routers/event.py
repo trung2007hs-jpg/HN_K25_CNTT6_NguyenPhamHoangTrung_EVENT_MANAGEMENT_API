@@ -3,10 +3,14 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db 
 from app.dependencies.auth import get_current_user
 from app.models.user import User
-from app.schemas.event import EventCreate, EventResponse
+from app.schemas.event import EventCreate, EventDetailResponse, EventResponse
 from app.schemas.response import ResponseSchema
-from app.schemas.user import UserBase
-from app.services.event import create_event_service
+from app.schemas.user import UserBase, EventInUser
+from app.services.event import (
+    create_event_service,
+    get_event_detail_service,
+    get_events_by_owner_services,
+)
 
 event_router = APIRouter(prefix="/events", tags=["Event"])
 
@@ -22,6 +26,39 @@ def create_event(
     return ResponseSchema(
         status_code=status.HTTP_201_CREATED,
         message="Tạo sự kiện thành công",
+        data=event,
+        path=request.url.path,
+    )
+    
+@event_router.get('/', response_model=ResponseSchema[list[EventInUser]])
+def get_events_by_owner(
+    request: Request, 
+    current_user: User = Depends(get_current_user), 
+    db: Session=Depends(get_db)
+):
+    events = get_events_by_owner_services(db=db, user_id=current_user.id)
+    return ResponseSchema(
+        status_code=status.HTTP_200_OK,
+        message='Lấy danh sách sự kiện thành công',
+        data=events,
+        path=request.url.path
+    )
+
+@event_router.get("/{event_id}", response_model=ResponseSchema[EventDetailResponse])
+def get_event_detail(
+    event_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    event = get_event_detail_service(
+        db=db,
+        event_id=event_id,
+        user_id=current_user.id,
+    )
+    return ResponseSchema(
+        status_code=status.HTTP_200_OK,
+        message="Lấy chi tiết sự kiện thành công",
         data=event,
         path=request.url.path,
     )
