@@ -1,5 +1,5 @@
 from app.db.database import Base, engine
-from fastapi import FastAPI, status, Request
+from fastapi import FastAPI, status, Request, Depends
 from app.schemas.response import ResponseSchema
 from app.core.exceptions import register_exception_handlers
 from app.routers.auth import auth_router
@@ -10,6 +10,7 @@ from app.models.event import Event
 from app.models.event_staff import EventStaff
 from app.models.event_task import EventTask
 from app.models.user import User
+from app.dependencies.auth import get_current_admin
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,7 +23,7 @@ app.include_router(event_router)
 app.include_router(event_staff_router)
 
 @app.get("/health", response_model=ResponseSchema, tags=["Health"])
-def health_check(request: Request):
+def health_check(request: Request, current_admin = Depends(get_current_admin)):
     return ResponseSchema(
         status_code=status.HTTP_200_OK,
         message="Server đang hoạt động bình thường!",
