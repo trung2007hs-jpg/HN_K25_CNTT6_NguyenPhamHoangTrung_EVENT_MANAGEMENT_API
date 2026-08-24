@@ -50,10 +50,14 @@ def get_list_members_event_service(db: Session, event_id: int, user_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Không tìm thấy sự kiện",
         )
-    if event.owner_id != user_id:
+    is_member = db.query(EventStaff).filter(
+        EventStaff.event_id == event_id,
+        EventStaff.user_id == user_id,
+    ).first()
+    if is_member is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bạn không phải là chủ sự kiện này",
+            detail="Bạn không phải thành viên của sự kiện này",
         )
     members = db.query(EventStaff).filter(EventStaff.event_id == event_id).all()
     return members
@@ -74,16 +78,20 @@ def remove_member_service(db: Session, event_id: int, owner_id: int, member_id: 
         EventStaff.event_id == event_id,
         EventStaff.user_id == member_id
     ).first()
-    if member is None:
+    if not member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Không tìm thấy thành viên trong sự kiện này"
         )
-    if member_id == event.owner_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Không thể xóa chủ sự kiện"
-        )
+    if member.role == 'OWNER':
+        owner_count = db.query(EventStaff).filter(
+            EventStaff.event_id == event_id, EventStaff.role == "OWNER"
+        ).count()
+        if owner_count <= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Không thể xóa do bạn là chủ sự kiện duy nhất."
+            )
     db.delete(member)
     db.commit()
     return member

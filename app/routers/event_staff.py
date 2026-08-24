@@ -53,7 +53,7 @@ def remove_member(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    member = remove_member_service(db=db, event_id=event_id, owner_id=current_user.id, user_id=user_id)
+    member = remove_member_service(db=db, event_id=event_id, owner_id=current_user.id, member_id=user_id)
     return ResponseSchema(
         status_code=status.HTTP_200_OK,
         message="Xóa thành viên khỏi sự kiện thành công",

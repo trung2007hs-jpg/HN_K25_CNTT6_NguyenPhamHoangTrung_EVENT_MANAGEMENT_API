@@ -1,10 +1,15 @@
 from datetime import datetime
 from typing import Optional
+from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.user import UserBase
 
+class EventStaffRole(str, Enum):
+    MEMBER = "MEMBER"
+    OWNER = "OWNER"
+
 class EventStaffBase(BaseModel):
-    role: str = "MEMBER"
+    role: EventStaffRole = Field(..., description="Vai trò của nhân sự trong sự kiện")
 
 # Schema cho request thêm nhân sự vào sự kiện
 class EventStaffCreate(EventStaffBase):
