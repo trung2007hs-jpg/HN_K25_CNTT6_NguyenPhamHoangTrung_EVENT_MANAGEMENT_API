@@ -6,7 +6,7 @@ from app.models.user import User
 from app.models.user import User
 from app.schemas.event_staff import EventStaffCreate, UserInEventStaffResponse
 from app.schemas.response import ResponseSchema
-from app.services.event_staff import add_member_service
+from app.services.event_staff import add_member_service, get_list_members_event_service
 
 event_staff_router = APIRouter(prefix="/events/{event_id}/members", tags=["Event Staff"])
 
@@ -25,3 +25,19 @@ def add_member(
         data=member,
         path=request.url.path,
     )
+    
+@event_staff_router.get("/", response_model=ResponseSchema[list[UserInEventStaffResponse]])
+def get_list_members_event(
+    event_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    members = get_list_members_event_service(db=db, event_id=event_id, user_id=current_user.id)
+    return ResponseSchema(
+        status_code=status.HTTP_200_OK,
+        message="Lấy danh sách thành viên sự kiện thành công",
+        data=members,
+        path=request.url.path,
+    )
+    

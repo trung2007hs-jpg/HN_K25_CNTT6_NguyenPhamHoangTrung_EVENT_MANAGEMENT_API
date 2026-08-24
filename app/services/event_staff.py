@@ -41,3 +41,23 @@ def add_member_service(db: Session, event_id: int, owner_id: int, new_event_staf
 	db.commit()
 	db.refresh(member)
 	return member
+
+def get_list_members_event_service(db: Session, event_id: int, user_id: int):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if event is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy sự kiện",
+        )
+    is_owner = event.owner_id == user_id
+    is_member = db.query(EventStaff).filter(
+        EventStaff.event_id == event_id,
+        EventStaff.user_id == user_id,
+    ).first() is not None
+    if not (is_owner or is_member):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bạn không phải thành viên của sự kiện này",
+        )
+    members = db.query(EventStaff).filter(EventStaff.event_id == event_id).all()
+    return members
