@@ -10,8 +10,9 @@ class EventBase(BaseModel):
     description: Optional[str] = None
 
 # Schema tạo Event mới
-class EventCreate(EventBase):
-    pass
+class EventCreate(BaseModel):
+    name: str = Field(...)
+    description: Optional[str] = None
 
 # Schema cập nhật Event
 class EventUpdate(BaseModel):

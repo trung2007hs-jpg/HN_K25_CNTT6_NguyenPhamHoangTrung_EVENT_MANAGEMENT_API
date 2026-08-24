@@ -1,6 +1,6 @@
 from datetime import datetime
+from urllib import request
 from fastapi import APIRouter, Depends, status, Request
-from fastapi.security import OAuth2PasswordRequestForm
 from app.db.database import get_db
 from sqlalchemy.orm import Session
 from app.schemas.auth import RegisterUser, LoginUser
@@ -20,17 +20,15 @@ def register_user(request: Request, new_user: RegisterUser, db: Session = Depend
         path=request.url.path
     )
     
-@auth_router.post("/login", response_model=TokenData)
-def login_user(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
-):
-    credentials = LoginUser(
-        email=form_data.username,
-        password=form_data.password,
-    )
-    data = login_user_service(credentials, db)
-    return TokenData(
-        access_token=data["access_token"],
-        token_type=data["token_type"],
+@auth_router.post("/login", response_model=BaseResponseSchema[TokenData])
+def login_user(request: Request, form_data: LoginUser = Depends(), db: Session = Depends(get_db),):
+    data = login_user_service(form_data, db)
+    return BaseResponseSchema(
+        status_code=status.HTTP_200_OK,
+        message='Đăng nhập thành công',
+        data=TokenData(
+            access_token=data["access_token"],
+            token_type=data["token_type"]
+        ),
+        path=request.url.path
     )

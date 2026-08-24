@@ -1,18 +1,14 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.user import UserBase
 
 class EventStaffBase(BaseModel):
-    role: str 
+    role: str = "MEMBER"
 
 # Schema cho request thêm nhân sự vào sự kiện
 class EventStaffCreate(EventStaffBase):
-    user_id: int
-
-# Schema cho request cập nhật vai trò nhân sự
-class EventStaffUpdate(BaseModel):
-    role: str
+    user_id: int = Field(..., description="ID của User cần thêm vào sự kiện")
 
 # Schema trả về thông tin nhân sự kèm chi tiết User
 class EventStaffResponse(EventStaffBase):
