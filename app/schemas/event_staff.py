@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
-from app.schemas.user import UserResponse
+from app.schemas.user import UserBase
 
 class EventStaffBase(BaseModel):
     role: str 
@@ -19,4 +19,8 @@ class EventStaffResponse(EventStaffBase):
     event_id: int
     user_id: int
     joined_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+    
+class UserInEventStaffResponse(EventStaffResponse):
+    user: Optional[UserBase] = None
     model_config = ConfigDict(from_attributes=True)

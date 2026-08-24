@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import and_
 from app.models.event import Event
 from app.models.event_staff import EventStaff
-from app.schemas.event import EventCreate
+from app.schemas.event import EventCreate, EventUpdate
 
 def create_event_service(db: Session, event_in: EventCreate, user_id: int):
     db_event = Event(name=event_in.name, description=event_in.description, owner_id=user_id)
@@ -42,3 +42,37 @@ def get_event_detail_service(db: Session, event_id: int, user_id: int):
         )
     return event
 
+def update_event_service(db: Session, event_id: int, user_id: int, event_update: EventUpdate):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if event is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy sự kiện",
+        )
+    if event.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bạn không phải là chủ sự kiện này",
+        )
+    update_data = event_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(event, field, value)
+    db.commit()
+    db.refresh(event)
+    return event
+
+def delete_event_service(db: Session, event_id: int, user_id: int):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if event is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy sự kiện",
+        )
+    if event.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bạn không phải là chủ sự kiện này",
+        )
+    db.delete(event)
+    db.commit()
+    return event
