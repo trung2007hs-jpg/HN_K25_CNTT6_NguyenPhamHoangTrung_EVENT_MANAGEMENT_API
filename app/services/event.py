@@ -21,7 +21,10 @@ def create_event_service(db: Session, event_in: EventCreate, user_id: int):
     return db_event
 
 def get_events_by_owner_services(db: Session, user_id: int):
-    db_events = db.query(Event).filter(user_id == Event.owner_id).all()
+    db_events = db.query(Event).join(EventStaff).filter(
+        EventStaff.user_id == user_id,
+        EventStaff.role == "OWNER",
+    ).all()
     return db_events
 
 def get_event_detail_service(db: Session, event_id: int, user_id: int):
@@ -31,7 +34,13 @@ def get_event_detail_service(db: Session, event_id: int, user_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Không tìm thấy sự kiện",
         )
-    is_owner = event.owner_id == user_id
+    is_owner = db.query(EventStaff).filter(
+        and_(
+            EventStaff.event_id == event_id,
+            EventStaff.user_id == user_id,
+            EventStaff.role == "OWNER",
+        )
+    ).first() is not None
     is_member = db.query(EventStaff).filter(
         and_(EventStaff.event_id == event_id, EventStaff.user_id == user_id)
     ).first() is not None
@@ -49,7 +58,10 @@ def update_event_service(db: Session, event_id: int, user_id: int, event_update:
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Không tìm thấy sự kiện",
         )
-    if event.owner_id != user_id:
+    chk_owner_event = db.query(EventStaff).filter(
+        and_(EventStaff.event_id == event_id, EventStaff.user_id == user_id, EventStaff.role == "OWNER")
+    ).first()
+    if not chk_owner_event:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bạn không phải là chủ sự kiện này",
@@ -68,7 +80,10 @@ def delete_event_service(db: Session, event_id: int, user_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Không tìm thấy sự kiện",
         )
-    if event.owner_id != user_id:
+    chk_owner_event = db.query(EventStaff).filter(
+        and_(EventStaff.event_id == event_id, EventStaff.user_id == user_id, EventStaff.role == "OWNER")
+    ).first()
+    if not chk_owner_event:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Bạn không phải là chủ sự kiện này",
