@@ -15,7 +15,7 @@ from app.services.event import (
 )
 from app.services.event_staff import add_member_service
 
-event_router = APIRouter(prefix="/events", tags=["Event"])
+event_router = APIRouter(prefix="/events", tags=["Sự kiện"])
 
 
 @event_router.post("/", response_model=ResponseSchema[EventResponse])

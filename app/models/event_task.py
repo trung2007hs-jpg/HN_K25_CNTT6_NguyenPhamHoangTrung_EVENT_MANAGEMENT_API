@@ -11,8 +11,8 @@ class EventTask(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text)
     assignee_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-    status = Column(String(50), default='TODO') # TODO / IN_PROGRESS / DONE
-    priority = Column(String(50), default='MEDIUM')
+    status = Column(String(50), nullable=False) # TODO / IN_PROGRESS / DONE
+    priority = Column(String(50), nullable=False) # LOW / MEDIUM / HIGH
     due_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 

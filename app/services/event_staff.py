@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.event import Event
 from app.models.event_staff import EventStaff
+from app.models.event_task import EventTask
 from app.models.user import User
 from app.schemas.event_staff import EventStaffCreate
 
@@ -101,6 +102,10 @@ def remove_member_service(db: Session, event_id: int, owner_id: int, member_id: 
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Không thể xóa do bạn là chủ sự kiện duy nhất."
             )
+    db.query(EventTask).filter(
+        EventTask.event_id == event_id,
+        EventTask.assignee_id == member_id,
+    ).update({EventTask.assignee_id: None}, synchronize_session=False)
     db.delete(member)
     db.commit()
     return member
