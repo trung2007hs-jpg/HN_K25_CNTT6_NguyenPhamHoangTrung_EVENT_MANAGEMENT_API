@@ -12,7 +12,7 @@ from app.services.event_staff import (
     remove_member_service
 )
 
-event_staff_router = APIRouter(prefix="/events/{event_id}/members", tags=["Event Staff"])
+event_staff_router = APIRouter(prefix="/events/{event_id}/members", tags=["Member"])
 
 @event_staff_router.post("/", response_model=ResponseSchema[UserInEventStaffResponse], status_code=status.HTTP_201_CREATED)
 def add_member(

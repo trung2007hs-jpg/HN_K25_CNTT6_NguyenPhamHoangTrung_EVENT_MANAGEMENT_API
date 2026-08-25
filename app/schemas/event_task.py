@@ -1,23 +1,33 @@
 from datetime import datetime
 from typing import Optional
-
-from pydantic import BaseModel, ConfigDict
+from enum import Enum
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.user import UserResponse
 
-
-class EventTaskBase(BaseModel):
-    title: str
+class EventTaskPriority(str, Enum):
+    LOW  = 'LOW'
+    MEDIUM  = 'MEDIUM'
+    HIGH = 'HIGH'
+    
+class EventTaskStatus(str, Enum):
+    TODO  = 'TODO'
+    IN_PROGRESS = 'IN_PROGRESS'
+    DONE = 'DONE'
+    
+class EventTaskCreate(BaseModel):
+    title: str = Field(...)
     description: Optional[str] = None
     assignee_id: Optional[int] = None
-    status: str = "TODO"
-    priority: str = "MEDIUM"
-    due_date: Optional[datetime] = None
+    status: EventTaskStatus = Field(...)
+    priority: EventTaskPriority = Field(...)
+    due_date: Optional[datetime] = None 
 
 
-class EventTaskCreate(EventTaskBase):
-    pass
-
+class EventTaskBase(EventTaskCreate):
+    id: int
+    event_id: int
+    created_at: datetime
 
 class EventTaskUpdate(BaseModel):
     title: Optional[str] = None
@@ -27,11 +37,6 @@ class EventTaskUpdate(BaseModel):
     priority: Optional[str] = None
     due_date: Optional[datetime] = None
 
-
 class EventTaskResponse(EventTaskBase):
-    id: int
-    event_id: int
-    created_at: datetime
     assignee: Optional[UserResponse] = None
-
     model_config = ConfigDict(from_attributes=True)
