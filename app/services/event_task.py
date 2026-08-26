@@ -157,7 +157,7 @@ def delete_event_task_service(db: Session, task_id: int, user_id: int):
     if not (is_owner or is_assignee):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bạn không có quyền chỉnh sửa công việc của sự kiện này",
+            detail="Bạn không có quyền xóa công việc của sự kiện này",
         )
     db.delete(task)
     db.commit()
