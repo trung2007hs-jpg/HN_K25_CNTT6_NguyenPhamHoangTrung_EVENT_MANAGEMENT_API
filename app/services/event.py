@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from sqlalchemy import and_
@@ -20,12 +21,11 @@ def create_event_service(db: Session, event_in: EventCreate, user_id: int):
     db.refresh(db_event)
     return db_event
 
-def get_events_by_owner_services(db: Session, user_id: int):
-    db_events = db.query(Event).join(EventStaff).filter(
-        EventStaff.user_id == user_id,
-        EventStaff.role == "OWNER",
-    ).all()
-    return db_events
+def get_events_service(db: Session, user_id: int, search: Optional[str] = None):
+    query = db.query(Event).join(EventStaff).filter(EventStaff.user_id == user_id)
+    if search:
+        query = query.filter(Event.name.ilike(f"%{search}%"))
+    return query.all()
 
 def get_event_detail_service(db: Session, event_id: int, user_id: int):
     event = db.query(Event).filter(Event.id == event_id).first()

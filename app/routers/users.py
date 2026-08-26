@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, Request, status, HTTPException
 from app.services.user import get_all_user_service
 from sqlalchemy.orm import Session
 from app.db.database import get_db
+from typing import Optional
+from app.schemas.user import SearchUser, SearchStatus
 
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -23,8 +25,15 @@ def get_me(request: Request, current_user: User = Depends(get_current_user)):
     )
     
 @user_router.get("/", response_model=ResponseSchema[list[UserResponse]])
-def get_all_users(request: Request, current_user: User = Depends(get_current_admin), db: Session=Depends(get_db)):
-    data = get_all_user_service(db)
+def get_all_users(
+    request: Request, 
+    keyword: Optional[str] = None, 
+    current_user: User = Depends(get_current_admin), 
+    db: Session=Depends(get_db), 
+    search: Optional[SearchUser] = None, 
+    is_active: Optional[SearchStatus] = None
+):
+    data = get_all_user_service(db=db, keyword=keyword, search=search, is_active=is_active)
     return ResponseSchema(
         status_code=status.HTTP_200_OK,
         message="Lấy danh sách tài khoản thành công",

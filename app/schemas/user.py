@@ -1,17 +1,21 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr
+from enum import Enum
+
+class SearchUser(str, Enum):
+    EMAIL = 'email'
+    FULLNAME = 'fullname'
+    
+class SearchStatus(int, Enum):
+    ACTIVE = 1
+    INACTIVE = 0
 
 class UserBase(BaseModel):
     email: EmailStr
     full_name: str
 
 # Schema dùng khi Admin tạo User hoặc Cập nhật Profile
-class UserUpdate(BaseModel):
-    full_name: Optional[str] = None
-    email: Optional[EmailStr] = None
-    is_active: Optional[bool] = None
-
 class UserResponse(UserBase):
     id: int
     role: str

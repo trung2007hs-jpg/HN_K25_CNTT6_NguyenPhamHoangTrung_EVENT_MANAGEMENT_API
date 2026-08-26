@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Request, status
+from typing import Optional
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db 
 from app.dependencies.auth import get_current_user
@@ -9,14 +10,12 @@ from app.schemas.user import UserBase, EventInUser
 from app.services.event import (
     create_event_service,
     get_event_detail_service,
-    get_events_by_owner_services,
+    get_events_service,
     update_event_service,
     delete_event_service,
 )
-from app.services.event_staff import add_member_service
 
 event_router = APIRouter(prefix="/events", tags=["Sự kiện"])
-
 
 @event_router.post("/", response_model=ResponseSchema[EventResponse])
 def create_event(
@@ -34,12 +33,13 @@ def create_event(
     )
     
 @event_router.get('/', response_model=ResponseSchema[list[EventInUser]])
-def get_events_by_owner(
+def get_events(
     request: Request, 
+    search: Optional[str] = Query(default=None),
     current_user: User = Depends(get_current_user), 
     db: Session=Depends(get_db)
 ):
-    events = get_events_by_owner_services(db=db, user_id=current_user.id)
+    events = get_events_service(db=db, user_id=current_user.id, search=search)
     return ResponseSchema(
         status_code=status.HTTP_200_OK,
         message='Lấy danh sách sự kiện thành công',

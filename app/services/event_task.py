@@ -15,7 +15,10 @@ def create_task_service(db: Session, new_task: EventTaskCreate, event_id: int, u
             detail='Không tìm thấy sự kiện'
         )
     is_member = (
-        db.query(EventStaff).filter(EventStaff.event_id == event_id, EventStaff.user_id == user_id).first())
+        db.query(EventStaff).filter(
+            EventStaff.event_id == event_id, 
+            EventStaff.user_id == user_id,
+        ).first())
     if not is_member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

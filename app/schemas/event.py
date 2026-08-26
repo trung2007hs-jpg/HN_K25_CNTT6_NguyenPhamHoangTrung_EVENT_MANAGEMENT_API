@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.user import UserBase
 from app.schemas.event_staff import EventStaffResponse
-from app.schemas.event_task import EventTaskResponse
+from app.schemas.event_task import EventTaskBase
 
 class EventBase(BaseModel):
     name: str
@@ -30,4 +30,4 @@ class EventResponse(EventBase):
 # Schema trả về Event chi tiết (kèm danh sách Staff và Tasks)
 class EventDetailResponse(EventResponse):
     staffs: List[EventStaffResponse] = Field(default_factory=list)
-    tasks: List[EventTaskResponse] = Field(default_factory=list)
+    tasks: List[EventTaskBase] = Field(default_factory=list)
