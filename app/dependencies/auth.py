@@ -30,6 +30,14 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         )
     return user
 
+def get_current_manager(current_user: User = Depends(get_current_user)):
+    if current_user.role != "MANAGER" and current_user.role != "ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bạn không có quyền quản lý để thực hiện hành động này"
+        )
+    return current_user
+
 def get_current_admin(current_user: User = Depends(get_current_user)):
     if current_user.role != "ADMIN":
         raise HTTPException(

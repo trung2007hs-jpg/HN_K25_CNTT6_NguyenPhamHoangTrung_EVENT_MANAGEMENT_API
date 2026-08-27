@@ -28,7 +28,8 @@ def login_user(request: Request, form_data: LoginUser = Depends(), db: Session =
         message='Đăng nhập thành công',
         data=TokenData(
             access_token=data["access_token"],
-            token_type=data["token_type"]
+            token_type=data["token_type"],
+            user_info=data["user_info"],
         ),
         path=request.url.path
     )

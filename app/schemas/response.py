@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, Generic, Optional, TypeVar
 from pydantic import BaseModel, Field
+from app.schemas.auth import UserInfo
 
 DataT = TypeVar("DataT")
 
@@ -23,4 +24,5 @@ class ErrorResponseSchema(BaseResponseSchema[None]):
 class TokenData(BaseModel):
     access_token: str
     token_type: str
+    user_info: UserInfo
 

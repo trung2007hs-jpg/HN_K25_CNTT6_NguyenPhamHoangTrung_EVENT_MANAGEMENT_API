@@ -11,8 +11,14 @@ def register_user_service(user: RegisterUser, db: Session):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Email is exist'
         )
+    char_in_password = ('@', '#', '$', '%', '!')
+    if not any(char in user.password for char in char_in_password) and len(user.password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Password too weak. It must be at least 8 characters long and contain at least one special character.'
+        )
     new_user = User(
-        email=user.email,
+        email=user.email.lower(),
         password_hash=hash_password(user.password),
         full_name=user.full_name.lower().title()
     )
@@ -23,21 +29,25 @@ def register_user_service(user: RegisterUser, db: Session):
     
 def login_user_service(credentials: LoginUser, db: Session):
     user = db.query(User).filter(User.email == credentials.email).first()
-
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email hoặc mật khẩu không chính xác",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Sai thông tin đăng nhập",
         )
-
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Tài khoản này đã bị khóa",
         )
-
-    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    access_token = create_access_token(
+        data={"sub": user.email, "id": user.id, "email": user.email,"role": user.role,}
+    )
     return {
         "access_token": access_token, 
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "user_info": {
+            "id": user.id,
+            "email": user.email,
+            "role": user.role,
+        },
     }

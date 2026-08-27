@@ -7,13 +7,10 @@ class SearchUser(str, Enum):
     EMAIL = 'email'
     FULLNAME = 'fullname'
     
-class SearchStatus(int, Enum):
-    ACTIVE = 1
-    INACTIVE = 0
 
 class UserBase(BaseModel):
+    id: int
     email: EmailStr
-    full_name: str
 
 # Schema dùng khi Admin tạo User hoặc Cập nhật Profile
 class UserResponse(UserBase):
