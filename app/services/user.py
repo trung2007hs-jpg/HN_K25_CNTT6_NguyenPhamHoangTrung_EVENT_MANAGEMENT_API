@@ -22,7 +22,6 @@ def get_all_user_service(
             target_column = User.full_name
         else:
             target_column = User.email
-
         query = query.filter(target_column.ilike(f"%{keyword}%"))
     if is_active is not None:
         query = query.filter(User.is_active == is_active)

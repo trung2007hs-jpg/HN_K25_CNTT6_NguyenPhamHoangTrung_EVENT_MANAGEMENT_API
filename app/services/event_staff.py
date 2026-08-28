@@ -29,6 +29,14 @@ def add_member_service(db: Session, event_id: int, owner_id: int, new_event_staf
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Không tìm thấy người dùng",
         )
+    inactive_user = db.query(User).filter(\
+        User.is_active == True
+    ).first()
+    if inactive_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Tài khoản người dùng này đang bị khóa. Không thể thêm thành viên này",
+        )
     member = db.query(EventStaff).filter(
         EventStaff.event_id == event_id,
         EventStaff.user_id == new_event_staff.user_id,
